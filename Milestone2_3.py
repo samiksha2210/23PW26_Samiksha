@@ -26,7 +26,7 @@ def get_die_angle(corners):
         if angle < 0:
             angle += 360
         angles.append(angle)
-    return min(angles, key=lambda a: min_angular_diff(a, initial_angle))
+    return min(angles)
 
 for die in dies:
     corners = die['Corners']
@@ -70,32 +70,33 @@ for mask in range(1 << n):
                 pred[new_mask][v] = u
 
 full_mask = (1 << n) - 1
+min_path_cost = min(dp[full_mask][k] for k in range(n) if dp[full_mask][k] < INF)
 
-min_path_cost = INF
-end_city = -1
-for k in range(n):
-    if dp[full_mask][k] < min_path_cost:
-        min_path_cost = dp[full_mask][k]
-        end_city = k
-
-
-best_path = []
-current_mask = full_mask
-current = end_city
-while current != -1:
-    best_path.append(current)
-    prev = pred[current_mask][current]
-    if prev == -1:
-        break
-    current_mask ^= (1 << current) 
-    current = prev
-
-best_path.reverse()  
-
+best_path = None
 best_time = min_path_cost
 
-print(f"Most accurate Total Time found (Held-Karp open path): {best_time:.3f} seconds")
+for possible_end in range(n):
+    if dp[full_mask][possible_end] != min_path_cost:
+        continue
+    
+    path = []
+    current_mask = full_mask
+    current = possible_end
+    while current != -1:
+        path.append(current)
+        prev = pred[current_mask][current]
+        if prev == -1:
+            break
+        current_mask ^= (1 << current) 
+        current = prev
+    path.reverse()
+    
+    if best_path is None or path < best_path:
+        best_path = path
 
+
+print(best_path)  
+best_time = min_path_cost
 final_path_coords = [centers[i] for i in best_path]
 
 ans = {
@@ -103,7 +104,6 @@ ans = {
     "Path": final_path_coords
 }
 
-with open("TestCase_2_41.json", "w") as f:
+with open("TestCase_2_44.json", "w") as f:
     json.dump(ans, f, indent=4)
 
-print("Saved to TestCase_2_4.json")
