@@ -104,6 +104,6 @@ ans = {
     "Path": final_path_coords
 }
 
-with open("TestCase_2_44.json", "w") as f:
+with open("TestCase_2_4.json", "w") as f:
     json.dump(ans, f, indent=4)
 
